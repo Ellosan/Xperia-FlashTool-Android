@@ -69,6 +69,25 @@ export ANDROID_HOME=/path/to/android-sdk
 
 Compiles against SDK 35 with AGP 8.7.3 / Kotlin 2.0.21; minimum runtime is API 24.
 
+Prebuilt APKs are on the [releases page](../../releases).
+
+### Release builds
+
+Copy `keystore.properties.example` to `keystore.properties` and point it at your own keystore:
+
+```bash
+keytool -genkeypair -v -keystore keystore/my-release-key.jks \
+  -alias my-key -keyalg RSA -keysize 4096 -validity 10950
+./gradlew assembleRelease        # app/build/outputs/apk/release/app-release.apk
+```
+
+Neither the keystore nor `keystore.properties` is in the repository. Without them the release
+build still succeeds, just unsigned. Keep whatever key you use — Android only lets an app be
+updated in place by an APK signed with the same one.
+
+R8 is deliberately left off for release builds, so the shipped binary is the code the tests
+exercise rather than a shrunk rewrite of it that nothing here can verify.
+
 ## How it is put together
 
 ```
