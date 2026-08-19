@@ -43,13 +43,29 @@ jobs:
             exit 0
           fi
           mkdir -p keystore
-          echo "$KEYSTORE_BASE64" | base64 -d > keystore/release.jks
+
+          # Pasting a secret through a browser easily picks up line breaks, CRs or stray
+          # spaces, none of which GNU base64 accepts. Strip whitespace before decoding.
+          if ! printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > keystore/release.jks 2>/dev/null; then
+            echo "::error::KEYSTORE_BASE64 is not valid base64. Regenerate it with" \
+                 "'base64 -w0 your-keystore.jks' and paste the whole single line."
+            exit 1
+          fi
+
+          # Distinguish a bad keystore from a wrong password while the reason is still in reach.
+          if ! keytool -list -keystore keystore/release.jks -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error::The decoded keystore could not be opened. Either KEYSTORE_BASE64 is" \
+                 "truncated or KEYSTORE_PASSWORD is wrong."
+            exit 1
+          fi
+
           {
             echo "storeFile=keystore/release.jks"
             echo "storePassword=$KEYSTORE_PASSWORD"
             echo "keyAlias=$KEY_ALIAS"
             echo "keyPassword=$KEY_PASSWORD"
           } > keystore.properties
+          echo "Keystore decoded and opened successfully."
 
       - name: Build release APK
         run: ./gradlew assembleRelease
