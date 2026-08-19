@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sony / Sony Ericsson vendor id 0x0FCE (4046). -->
+    <!-- S1 flash mode (green LED) 0xADDE -->
+    <usb-device vendor-id="4046" product-id="44510" />
+    <!-- fastboot (blue LED) 0x0DDE -->
+    <usb-device vendor-id="4046" product-id="3550" />
+    <!-- any other Sony device, so the app can explain which mode the phone is in -->
+    <usb-device vendor-id="4046" />
+</resources>
